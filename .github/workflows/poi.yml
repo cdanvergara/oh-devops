@@ -2,8 +2,8 @@ name: POI CICD
 
 env:
   poi_path: apis/poi/**
-  registry: docker.pkg.github.com
-  repository: cdanvergara/oh-devops/
+  registry: openhackmlm47ad5acr.azurecr.io
+  repository: devopsoh/api-poi
   docker_path: apis/poi/web
   staging_url: https://openhackmlm47ad5poi-staging.azurewebsites.net
   prod_url: https://openhackmlm47ad5poi.azurewebsites.net
