@@ -98,3 +98,15 @@ jobs:
             title: "${{ env.build_name }} Workflow ${{ github.run_number }} Failed! ",
             body: body
           });
+          
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: docker_build_and_push
+    steps:
+    - name: Azure WebApp
+      uses: Azure/webapps-deploy@v2
+      with: 
+        app-name: ${{ env.webapp_name }} 
+        images: $registry/$repository:${{github.run_number}}
+    
