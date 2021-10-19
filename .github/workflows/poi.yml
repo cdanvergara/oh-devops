@@ -124,6 +124,5 @@ jobs:
       uses: Azure/webapps-deploy@v2
       with: 
         app-name: ${{ env.webapp_name }} 
-        slot-name: 'staging'
         images: $registry/$repository:${{github.run_number}}
     
