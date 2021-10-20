@@ -1,8 +1,8 @@
 name: Trips CICD
 
 env:
-  registry: docker.pkg.github.com
-  repository: cdanvergara/oh-devops
+  registry: openhackmlm47ad5acr.azurecr.io
+  repository: devopsoh/api-trips
   docker_path: apis/trips
   staging_url: https://openhackmlm47ad5trips-staging.azurewebsites.net
   prod_url: https://openhackmlm47ad5trips.azurewebsites.net
@@ -56,3 +56,54 @@ jobs:
             title: "${{ env.build_name }} Workflow ${{ github.run_number }} Failed! ",
             body: body
           });
+ 
+  docker_build_and_push:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: build_and_test
+    steps:     
+    - uses: actions/checkout@v2
+
+    - name: Docker login     
+      run: docker login $registry -u ${{ secrets.ACR_USER }} -p ${{ secrets.ACR_KEY }}
+
+    - name: Docker build
+      run: docker build -t $registry/$repository:${{github.run_number}} --build-arg build_version=${{github.run_number}} $docker_path
+
+    - name: Docker Push
+      run: docker push $registry/$repository:${{github.run_number}}  
+
+    - uses: actions/github-script@0.9.0
+      if: failure()
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          let body = "${{ env.build_name }} Worflow Failure \n Build Number: ${{ github.run_number }} \n Build Log: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} \n SHA: [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) \n";
+          github.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: "${{ env.build_name }} Workflow ${{ github.run_number }} Failed! ",
+            body: body
+          });
+          
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: docker_build_and_push
+    steps:
+    - name: Azure authentication
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+#     - name: Azure CLI script to provision a new Web App for Container
+#       uses: azure/CLI@v0-beta
+#       with:
+#         azcliversion: latest
+#         inlineScript: |
+#           az webapp create --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_PLAN }} --name ${{ env.AZURE_WEBAPP_NAME }}  -i nginx  
+    - name: Azure WebApp
+      uses: Azure/webapps-deploy@v2
+      with: 
+        app-name: ${{ env.webapp_name }} 
+        slot-name: staging
+        images: ${{ env.registry }}/${{ env.repository }}:${{github.run_number}}
