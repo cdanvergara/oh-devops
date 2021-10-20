@@ -36,13 +36,13 @@ jobs:
     - name: Setup Go environment
       uses: actions/setup-go@v2
       with:
-        go-version: 1.16
+        go-version: 1.12
 
     - name: Install dependencies
       run: go get
 
     - name: Run Unit Tests
-      run: go test ./tripsgo
+      run: go test ./tripsgo -run Unit
 
     - uses: actions/github-script@0.9.0
       if: failure()
