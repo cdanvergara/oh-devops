@@ -113,16 +113,12 @@ jobs:
 #       with:
 #         azcliversion: latest
 #         inlineScript: |
-#           az webapp create --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_PLAN }} --name ${{ env.AZURE_WEBAPP_NAME }}  -i nginx
-    - name: ACR authentication
-      uses: azure/docker-login@v1
-      with:
-        login-server: ${{ env.registry }}
-        username: ${{ secrets.ACR_USER }}
-        password: ${{ secrets.ACR_KEY }}    
+#           az webapp create --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_PLAN }} --name ${{ env.AZURE_WEBAPP_NAME }}  -i nginx  
     - name: Azure WebApp
       uses: Azure/webapps-deploy@v2
       with: 
         app-name: ${{ env.webapp_name }} 
-        images: $registry/$repository:${{github.run_number}}
+        slot-name: staging
+        images: ${{ env.registry }}/${{ env.repository }}:${{github.run_number}}
+     
     
