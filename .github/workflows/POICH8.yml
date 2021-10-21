@@ -1,5 +1,5 @@
 name: POI CH8
-
+#Challenge # 8
 env:
   poi_path: apis/poi/** 
   registry: openhackmlm47ad5acr.azurecr.io
