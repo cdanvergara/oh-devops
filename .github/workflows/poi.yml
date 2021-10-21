@@ -102,6 +102,8 @@ jobs:
   deploy_staging:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment:
+      name: Trips-Staging
     needs: docker_build_and_push
     steps:
     - name: Azure authentication
@@ -179,6 +181,8 @@ jobs:
   swap_slots:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment:
+      name: Trips-Prod
     needs: validate_staging
     steps:
     - name: Azure authentication
