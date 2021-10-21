@@ -13,12 +13,12 @@ env:
 
 on:
   push:
-    branches: [ phased_rollout ]
+    branches: [main]
     paths: 
       - apis/poi/**  
       - .github/workflows/poi.yml
   pull_request:
-    branches: [ phased_rollout ]
+    branches: [main]
     paths: 
       - apis/poi/**
       - .github/workflows/poi.yml
@@ -59,7 +59,7 @@ jobs:
             body: body
           });
   docker_build_and_push:
-    if: github.ref == 'refs/heads/phased_rollout'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: build_and_test
     steps:     
@@ -87,7 +87,7 @@ jobs:
             body: body
           });
   deploy_staging:
-    if: github.ref == 'refs/heads/phased_rollout'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: docker_build_and_push
     steps:
@@ -116,7 +116,7 @@ jobs:
             body: body
           });
   route_traffic_one_percent:
-    if: github.ref == 'refs/heads/phased_rollout'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: deploy_staging
     steps:    
@@ -130,7 +130,7 @@ jobs:
         az webapp traffic-routing set --distribution staging=1 --name ${{ env.webapp_name }} --resource-group $resource_group
   
   validate_one_percent:
-    if: github.ref == 'refs/heads/phased_rollout'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: route_traffic_one_percent
     steps:
@@ -144,7 +144,7 @@ jobs:
           exit -1
         fi
   route_traffic_ten_percent:
-      if: github.ref == 'refs/heads/phased_rollout'
+      if: github.ref == 'refs/heads/main'
       runs-on: ubuntu-latest
       needs: validate_one_percent
       steps:
@@ -158,7 +158,7 @@ jobs:
           az webapp traffic-routing set --distribution staging=10 --name ${{ env.webapp_name }} --resource-group $resource_group
   
   validate_ten_percent:
-    if: github.ref == 'refs/heads/phased_rollout'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: route_traffic_ten_percent
     steps:
@@ -172,7 +172,7 @@ jobs:
           exit -1
         fi  
   route_traffic_onehundred_percent:
-    if: github.ref == 'refs/heads/phased_rollout'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: validate_ten_percent
     steps:
@@ -185,7 +185,7 @@ jobs:
       run: |
         az webapp traffic-routing set --distribution staging=100 --name ${{ env.webapp_name }} --resource-group $resource_group
   validate_onhundred_percent:
-    if: github.ref == 'refs/heads/phased_rollout'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: route_traffic_onehundred_percent
     steps:
@@ -199,7 +199,7 @@ jobs:
           exit -1
         fi       
   deploy_production:
-    if: github.ref == 'refs/heads/phased_rollout'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: validate_onhundred_percent
     steps:
@@ -216,7 +216,7 @@ jobs:
         images: ${{ env.registry }}/${{ env.repository }}:${{github.run_number}}
 
   route_all_traffic_production:
-    if: github.ref == 'refs/heads/phased_rollout'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: deploy_production
     steps:
