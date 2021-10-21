@@ -162,6 +162,19 @@ jobs:
               title: "${{ env.build_name }} Workflow ${{ github.run_number }} Failed! ",
               body: body
             }); 
+  
+#/ Challenge 7 - Load Testing
+# load_test:
+#    if: github.ref == 'refs/heads/load_test'
+#    runs-on: ubuntu-latest
+#    needs: validate_staging
+#    steps:
+#    - name: Install Apache Bench
+#      run: sudo apt-get install  apache2-utils
+#    - name: Load Test 
+#      run: | 
+#        rps=$(ab -t 20 -c 10 ${{ env.prod_url }}/api/version/poi | grep -Poe 'Requests per second: \K.*' | sed 's/^ *//g')
+#        echo "Requests per second: $rps" 
     
   swap_slots:
     if: github.ref == 'refs/heads/main'
@@ -188,7 +201,7 @@ jobs:
             title: "${{ env.build_name }} Workflow ${{ github.run_number }} Failed! ",
             body: body
           });
-    
+  
   validate_production:
       if: github.ref == 'refs/heads/master'
       runs-on: ubuntu-latest
@@ -243,3 +256,5 @@ jobs:
               title: "${{ env.build_name }} Workflow ${{ github.run_number }} Failed! ",
               body: body
             });
+
+  
